@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Name=XPacman
+GenericName=X Pacman Game
+Comment=XPacman is a basic Pacman clone for X11.
+TryExec=xpacman
+Exec=xpacman
+Icon=xpacman
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=Game;ArcadeGame;
+MimeType=application/x-xpacman
+Keywords=pacman;action;arcade;game;X;window;

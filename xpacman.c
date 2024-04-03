@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <ctype.h>
 
 /* definitions and enumerations ******************************************/
 
@@ -101,6 +102,7 @@ void update_ghosts(void);
 int valid_position(int,int);
 void init_game(void);
 int test_collide(int,int,int,int),test_ghost_collide(void);
+int which_ghost_collide(void);
 void plot_ghosts_eat(Window,GC),update_image_eat(Window,GC);
 void update_game_eat(void),update_ghosts_eat(void),update_ghosts_eat(void);
 struct point newghostpos_eat(struct ghostinfo);
@@ -135,7 +137,7 @@ char *emptyd,*walld,*pilld,*pacmanu2d,*pacmanu1d,*pacmanu0d,*pacmanr2d,
 enum mtype *map;
 
 /* pointer to map used for display purposes, & which bank is currently used */
-enum mtype *dmap;
+enum rtype *dmap;
 int cdmap;
 
 /* bit depth all graphics are to be created in */
@@ -194,13 +196,13 @@ int main(int argc, char *argv[]) {
   GC gc; /* holds the graphics context id */
   XFontStruct *font; /* handle to the current font */
   char *display_name=NULL; /* current display name */
-  
+
   char buffer[20]; /* buffer for decoding key events */
   int bufsize=20; /* buffer size */
   KeySym key; /* key symbol for decoding key events */
   XComposeStatus compose; /* needed for decoding key events */
   /* player`s keys */
-  char upkey='\'',rightkey='z',downkey='/',leftkey='x',quitkey='q'; 
+  char upkey='w',rightkey='s',downkey='z',leftkey='a',quitkey='q';
   int count; /* counter for arg parsing loop */
   int rate=15;
   int wait;
@@ -280,7 +282,7 @@ CHAR,CHAR,NUM,NUM };
                          printusage=True;
                        }
     clarg++;
-  
+
   }
 
   if (printusage) {
@@ -304,7 +306,7 @@ CHAR,CHAR,NUM,NUM };
   window_title=malloc(sizeof(char)*256);
 
   sprintf(window_title,"XPacman-%c up %c down %c left %c right %c quit use -slow to adjust speed\0",upkey,downkey,leftkey,rightkey,quitkey);
-   
+
   /* connect to the X server, or report an error if not possible */
   if ((display=XOpenDisplay(display_name))==NULL) {
     (void) fprintf(stderr,"%s: can't connect to X server %s.\n",
@@ -459,13 +461,13 @@ CHAR,CHAR,NUM,NUM };
               XCloseDisplay(display);
               exit(1); }
 
-             break;
+            break;
 
           case FocusIn:
             gamestate&=~PAUSED; break;
 
           case FocusOut:
-            gamestate|=PAUSED; break;  
+            gamestate|=PAUSED; break;
 
           default:
             /* do nothing with any other events */
@@ -521,7 +523,7 @@ void getGC(Window win, GC *gc, XFontStruct *font) {
   XSetForeground(display, *gc, BlackPixel(display,screen));
 
   /* set line attributes */
-  XSetLineAttributes(display, *gc, line_width, line_style, 
+  XSetLineAttributes(display, *gc, line_width, line_style,
 			cap_style, join_style);
 
   /* set dashes */
@@ -631,7 +633,7 @@ void make_image(Window win) {
   setup_eatpill(eatpill);
 
 }
-      
+
 /* paints an image completely in a colour */
 void setup_blank(XImage *animage, int colour) {
   int x,y;
@@ -658,7 +660,7 @@ void setup_wall(XImage *animage) {
   draw_y_line(animage,0,0,14,cvals.lightblue);
 
   draw_x_line(animage,15,1,15,cvals.darkblue);
-  draw_y_line(animage,15,1,15,cvals.darkblue);  
+  draw_y_line(animage,15,1,15,cvals.darkblue);
 
 
 }
@@ -749,9 +751,9 @@ void update_image_from_map(Window win,GC gc) {
           case EMPTY : XPutImage(display,win,gc,empty,0,0,x,y,16,16); break;
           case WALL : XPutImage(display,win,gc,wall,0,0,x,y,16,16); break;
           case PILL : XPutImage(display,win,gc,pill,0,0,x,y,16,16); break;
-          case EATPILL : XPutImage(display,win,gc,eatpill,0,0,x,y,16,16);break; 
- 
-        } 
+          case EATPILL : XPutImage(display,win,gc,eatpill,0,0,x,y,16,16);break;
+
+        }
       }
     }
   }
@@ -783,7 +785,7 @@ void update_image_eat(Window win,GC gc) {
 
 /* get the memory needed for the maps */
 void setup_map_memory(void) {
- 
+
   map=(enum mtype *) malloc(sizeof(enum mtype)*width*height);
   dmap=(enum rtype *) malloc(sizeof(enum rtype)*width*height);
 
@@ -915,8 +917,7 @@ void maze_draw(int sx,int sy,int ex,int ey) {
 
 }
 
-void draw_maze_point(int x,int y,enum dtype value) {
-
+void draw_maze_point(int x,int y,enum mtype value) {
   *(map+(x*height)+y)=value;
   *(map+((width-1-x)*height)+y)=value;
   *(map+(x*height)+(height-1-y))=value;
@@ -1022,7 +1023,7 @@ void setup_pacmanu(void) {
 
   setup_pacman(pacmanu2);
 
-  draw_y_line(pacmanu2,3,0,3,cvals.black);  
+  draw_y_line(pacmanu2,3,0,3,cvals.black);
   draw_y_line(pacmanu2,4,0,4,cvals.black);
   draw_y_line(pacmanu2,5,0,5,cvals.black);
   draw_y_line(pacmanu2,6,0,6,cvals.black);
@@ -1035,7 +1036,7 @@ void setup_pacmanu(void) {
 
   setup_pacman(pacmanu1);
 
-  draw_y_line(pacmanu1,5,0,3,cvals.black);  
+  draw_y_line(pacmanu1,5,0,3,cvals.black);
   draw_y_line(pacmanu1,6,0,5,cvals.black);
   draw_y_line(pacmanu1,7,0,7,cvals.black);
   draw_y_line(pacmanu1,8,0,7,cvals.black);
@@ -1200,9 +1201,9 @@ struct point newpacpos() {
   switch (pacdir) {
 
     case UP: newpos.y-=4; break;
-    case LEFT: newpos.x+=4; break;
+    case LEFT: newpos.x-=4; break;
     case DOWN: newpos.y+=4; break;
-    case RIGHT: newpos.x-=4; break;
+    case RIGHT: newpos.x+=4; break;
 
   }
 
@@ -1217,25 +1218,25 @@ void setup_pacmanr(void) {
 
   setup_pacman(pacmanr2);
 
-  draw_x_line(pacmanr2,3,0,3,cvals.black);  
-  draw_x_line(pacmanr2,4,0,4,cvals.black);
-  draw_x_line(pacmanr2,5,0,5,cvals.black);
-  draw_x_line(pacmanr2,6,0,6,cvals.black);
-  draw_x_line(pacmanr2,7,0,7,cvals.black);
-  draw_x_line(pacmanr2,8,0,7,cvals.black);
-  draw_x_line(pacmanr2,9,0,6,cvals.black);
-  draw_x_line(pacmanr2,10,0,5,cvals.black);
-  draw_x_line(pacmanr2,11,0,4,cvals.black);
-  draw_x_line(pacmanr2,12,0,3,cvals.black);
+  draw_x_line(pacmanr2,3,12,15,cvals.black);
+  draw_x_line(pacmanr2,4,11,15,cvals.black);
+  draw_x_line(pacmanr2,5,10,15,cvals.black);
+  draw_x_line(pacmanr2,6,9,15,cvals.black);
+  draw_x_line(pacmanr2,7,8,15,cvals.black);
+  draw_x_line(pacmanr2,8,8,15,cvals.black);
+  draw_x_line(pacmanr2,9,9,15,cvals.black);
+  draw_x_line(pacmanr2,10,10,15,cvals.black);
+  draw_x_line(pacmanr2,11,11,15,cvals.black);
+  draw_x_line(pacmanr2,12,12,15,cvals.black);
 
   setup_pacman(pacmanr1);
 
-  draw_x_line(pacmanr1,5,0,3,cvals.black);  
-  draw_x_line(pacmanr1,6,0,5,cvals.black);
-  draw_x_line(pacmanr1,7,0,7,cvals.black);
-  draw_x_line(pacmanr1,8,0,7,cvals.black);
-  draw_x_line(pacmanr1,9,0,5,cvals.black);
-  draw_x_line(pacmanr1,10,0,3,cvals.black);
+  draw_x_line(pacmanr1,5,12,15,cvals.black);
+  draw_x_line(pacmanr1,6,10,15,cvals.black);
+  draw_x_line(pacmanr1,7,8,15,cvals.black);
+  draw_x_line(pacmanr1,8,8,15,cvals.black);
+  draw_x_line(pacmanr1,9,10,15,cvals.black);
+  draw_x_line(pacmanr1,10,12,15,cvals.black);
 
   setup_pacman(pacmanr0);
 
@@ -1245,7 +1246,7 @@ void setup_pacmand(void) {
 
   setup_pacman(pacmand2);
 
-  draw_y_line(pacmand2,3,12,15,cvals.black);  
+  draw_y_line(pacmand2,3,12,15,cvals.black);
   draw_y_line(pacmand2,4,11,15,cvals.black);
   draw_y_line(pacmand2,5,10,15,cvals.black);
   draw_y_line(pacmand2,6,9,15,cvals.black);
@@ -1258,7 +1259,7 @@ void setup_pacmand(void) {
 
   setup_pacman(pacmand1);
 
-  draw_y_line(pacmand1,5,12,15,cvals.black);  
+  draw_y_line(pacmand1,5,12,15,cvals.black);
   draw_y_line(pacmand1,6,10,15,cvals.black);
   draw_y_line(pacmand1,7,8,15,cvals.black);
   draw_y_line(pacmand1,8,8,15,cvals.black);
@@ -1273,25 +1274,25 @@ void setup_pacmanl(void) {
 
   setup_pacman(pacmanl2);
 
-  draw_x_line(pacmanl2,3,12,15,cvals.black);  
-  draw_x_line(pacmanl2,4,11,15,cvals.black);
-  draw_x_line(pacmanl2,5,10,15,cvals.black);
-  draw_x_line(pacmanl2,6,9,15,cvals.black);
-  draw_x_line(pacmanl2,7,8,15,cvals.black);
-  draw_x_line(pacmanl2,8,8,15,cvals.black);
-  draw_x_line(pacmanl2,9,9,15,cvals.black);
-  draw_x_line(pacmanl2,10,10,15,cvals.black);
-  draw_x_line(pacmanl2,11,11,15,cvals.black);
-  draw_x_line(pacmanl2,12,12,15,cvals.black);
+  draw_x_line(pacmanl2,3,0,3,cvals.black);
+  draw_x_line(pacmanl2,4,0,4,cvals.black);
+  draw_x_line(pacmanl2,5,0,5,cvals.black);
+  draw_x_line(pacmanl2,6,0,6,cvals.black);
+  draw_x_line(pacmanl2,7,0,7,cvals.black);
+  draw_x_line(pacmanl2,8,0,7,cvals.black);
+  draw_x_line(pacmanl2,9,0,6,cvals.black);
+  draw_x_line(pacmanl2,10,0,5,cvals.black);
+  draw_x_line(pacmanl2,11,0,4,cvals.black);
+  draw_x_line(pacmanl2,12,0,3,cvals.black);
 
   setup_pacman(pacmanl1);
 
-  draw_x_line(pacmanl1,5,12,15,cvals.black);  
-  draw_x_line(pacmanl1,6,10,15,cvals.black);
-  draw_x_line(pacmanl1,7,8,15,cvals.black);
-  draw_x_line(pacmanl1,8,8,15,cvals.black);
-  draw_x_line(pacmanl1,9,10,15,cvals.black);
-  draw_x_line(pacmanl1,10,12,15,cvals.black);
+  draw_x_line(pacmanl1,5,0,3,cvals.black);
+  draw_x_line(pacmanl1,6,0,5,cvals.black);
+  draw_x_line(pacmanl1,7,0,7,cvals.black);
+  draw_x_line(pacmanl1,8,0,7,cvals.black);
+  draw_x_line(pacmanl1,9,0,5,cvals.black);
+  draw_x_line(pacmanl1,10,0,3,cvals.black);
 
   setup_pacman(pacmanl0);
 
@@ -1405,9 +1406,9 @@ void plot_map_tile(Window win,GC gc,int x,int y) {
       case EMPTY : XPutImage(display,win,gc,empty,0,0,x,y,16,16); break;
       case WALL : XPutImage(display,win,gc,wall,0,0,x,y,16,16); break;
       case PILL : XPutImage(display,win,gc,pill,0,0,x,y,16,16); break;
-      case EATPILL : XPutImage(display,win,gc,eatpill,0,0,x,y,16,16); break; 
+      case EATPILL : XPutImage(display,win,gc,eatpill,0,0,x,y,16,16); break;
 
-    } 
+    }
   }
 }
 
@@ -1421,9 +1422,9 @@ struct point newghostpos_eat(struct ghostinfo ghost) {
   switch (ghost.dir) {
 
     case UP: newpos.y-=2; break;
-    case LEFT: newpos.x+=2; break;
+    case LEFT: newpos.x-=2; break;
     case DOWN: newpos.y+=2; break;
-    case RIGHT: newpos.x-=2; break;
+    case RIGHT: newpos.x+=2; break;
 
   }
 
@@ -1444,9 +1445,9 @@ struct point newghostpos(struct ghostinfo ghost) {
   switch (ghost.dir) {
 
     case UP: newpos.y-=4; break;
-    case LEFT: newpos.x+=4; break;
+    case LEFT: newpos.x-=4; break;
     case DOWN: newpos.y+=4; break;
-    case RIGHT: newpos.x-=4; break;
+    case RIGHT: newpos.x+=4; break;
 
   }
 
@@ -1517,7 +1518,7 @@ void update_pacman_position(void) {
        { pacdir=(pacdir+1)%4; newdir=pacdir; }
 
   } while ((a==WALL)||(b==WALL)||(c==WALL)||(d==WALL)||(newpos.x<0)||
-         (newpos.x>((width-1)*16))||(newpos.y<0)||(newpos.y>((height-1)*16))); 
+         (newpos.x>((width-1)*16))||(newpos.y<0)||(newpos.y>((height-1)*16)));
 
   pacpos=newpacpos();
 
@@ -1545,7 +1546,7 @@ void update_ghost_position(struct ghostinfo *ghost) {
     if (!valid_position(newpos.x,newpos.y))
        { ghost->dir=(get_rand())%4; }
 
-  } while (!valid_position(newpos.x,newpos.y)); 
+  } while (!valid_position(newpos.x,newpos.y));
 
   ghost->oldx=ghost->x; ghost->oldy=ghost->y;
   ghost->x=newpos.x; ghost->y=newpos.y;
@@ -1574,7 +1575,7 @@ void update_ghost_position_eat(struct ghostinfo *ghost) {
     if (!valid_position(newpos.x,newpos.y))
        { ghost->dir=(get_rand())%4; }
 
-  } while (!valid_position(newpos.x,newpos.y)); 
+  } while (!valid_position(newpos.x,newpos.y));
 
   ghost->oldx=ghost->x; ghost->oldy=ghost->y;
   ghost->x=newpos.x; ghost->y=newpos.y;
@@ -1605,7 +1606,7 @@ void update_ghosts_eat(void) {
 
 }
 
-int valid_position(nx,ny) {
+int valid_position(int nx,int ny) {
 
   enum mtype a,b,c,d;
   int x,y;
@@ -1642,7 +1643,7 @@ void init_game(void) {
 
 }
 
-int test_collide(ax,ay,bx,by) {
+int test_collide(int ax,int ay,int bx,int by) {
 
   return (((bx-ax)>-15)&&((bx-ax)<15)&&((by-ay)>-15)&&((by-ay)<15));
 

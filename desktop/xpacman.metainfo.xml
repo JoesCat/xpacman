@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2024 Joe Da Silva <digital@joescat.com> -->
+<component type="desktop">
+  <id>xpacman</id>
+  <launchable type="desktop-id">xpacman.desktop</launchable>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>XPacman</name>
+  <summary>Simple Pacman game for X</summary>
+  <description>
+    <p xml:lang="C">
+    XPacman is a simple Pacman game clone for the X Window System.</p>
+    <p xml:lang="C">
+    This is a basic version of pacman. It concentrates on the essentials of
+    the game for now, meaning many original features are absent (ie no scores,
+    no fruit, no special items, no lives). When all pills are cleared from a
+    level, the difficulty level is notched up, and a new level is generated.
+    If you collide with a ghost, all pills are replaced, and you restart the
+    current level from scratch. A new feature just added is the presence of
+    large red pills that for a short time turn the ghosts grey and let
+    you eat them.</p>
+  </description>
+  <url type="homepage">https://github.com/JoesCat/xpacman</url>
+  <url type="help">https://github.com/JoesCat/xpacman#readme</url>
+  <url type="bugtracker">https://github.com/JoesCat/xpacman/issues</url>
+  <update_contact>digital@joescat.com</update_contact>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release date="2024-04-03" version="0.11"/>
+  </releases>
+  <project_license>GPL</project_license>
+  <developer_name>Peter Warden, 1996</developer_name>
+</component>

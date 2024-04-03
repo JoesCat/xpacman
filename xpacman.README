@@ -11,11 +11,11 @@ restart the current level from scratch. A new feature just added is the
 presence of large red pills that for a short time turn the ghosts grey and let
 you eat them.
 
-The default keys are: 'z'-left
-                      'x'-right
-                       / -down
-                       ' -up
-                       q -quits you from the game.
+The default keys are: 'a'-left
+                      's'-right
+                      'z'-down
+                      'w'-up
+                      'q'-quits you from the game.
 
 The game is paused when it loses the keyboard input focus and unpauses when it
 regains it.

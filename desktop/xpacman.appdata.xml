@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2024 Joe Da Silva <digital@joescat.com> -->
+<application>
+  <id type="desktop">xpacman.desktop</id>
+  <license>CC0-1.0</license>
+  <name>XPacman</name>
+  <description>
+    <p xml:lang="C">
+    XPacman is a basic pacman clone for the X Window System.</p>
+  </description>
+  <url type="homepage">https://github.com/JoesCat/xpacman</url>
+</application>

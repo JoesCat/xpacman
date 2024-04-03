@@ -1,11 +1,11 @@
 .\" xpacman.6x
 .\"
-.TH XPACMAN 6
+.TH XPACMAN 6 "April 4, 2024"
 .SH NAME
 xpacman - a basic version of pacman
-.SH SYNOPSIS 
+.SH SYNOPSIS
 .B "xpacman"
-[\fB-upkey key\fR] 
+[\fB-upkey key\fR]
 [\fB-downkey key\fR]
 [\fB-leftkey key\fR]
 [\fB-rightkey key\fR]
@@ -27,6 +27,21 @@ generated. If you collide with a ghost, all the pills are replaced, and you
 restart the current level from scratch. A new feature just added is the
 presence of large red pills that for a short time turn the ghosts grey and let
 you eat them.
+
+.PP
+.SH KEYS
+.TP
+.I a
+move left
+.TP
+.I s
+move right
+.TP
+.I w
+move up
+.TP
+.I z
+move down
 
 .SH OPTIONS
 .PP
@@ -53,8 +68,7 @@ To specify the width of the playing area, in 16 pixel units (default is 33).
 To specify the height of the playing area, in 16 pixel units (default is 33).
 
 .SH AUTHOR
-Peter Warden (wardenp@cs.man.ac.uk)
+Peter Warden (wardenp@cs.man.ac.uk) - 1996
 
-Man page written by the Debian maintainer, Steve McIntyre
-(stevem@chiark.greenend.org.uk) 
+xpacman.6 written by Debian Maintainer, Steve McIntyre (stevem@chiark.greenend.org.uk) - 1997
 
